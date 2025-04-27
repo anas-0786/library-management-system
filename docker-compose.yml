@@ -1,0 +1,43 @@
+services:
+  # MySQL Database
+  db:
+    image: mysql:8.0
+    container_name: library_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: library_db
+      MYSQL_USER: library_user
+      MYSQL_PASSWORD: library_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+  # PHPMyAdmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: library_phpmyadmin
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: admin
+    depends_on:
+      - db
+
+  # Apache with PHP
+  web:
+    build: .
+    container_name: library_web
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+
+volumes:
+  mysql_data:
